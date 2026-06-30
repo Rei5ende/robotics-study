@@ -51,9 +51,9 @@ All dynamics take the form $\dot{\bar{x}} = f(\bar{x}, \bar{u})$. Sketch:
 **Position / velocity:**
 
 ```
-        ⎡ 0  ⎤        ⎡   0      ⎤
-r̈   =   ⎢ 0  ⎥  +  R̄ ⎢   0      ⎥
-        ⎣ -g ⎦        ⎣ F_tot/m  ⎦
+            [  0      ]          [   0      ]
+r_ddot  =   [  0      ]  +  R_bar[   0      ]
+            [ -g      ]          [ F_tot/m  ]
 ```
 
 - `R̄` = **rotation matrix** that takes a vector from body frame → inertial frame.
@@ -64,9 +64,9 @@ r̈   =   ⎢ 0  ⎥  +  R̄ ⎢   0      ⎥
 **Euler angle rates (kinematic relation):**
 
 ```
-⎡ φ̇ ⎤   ⎡ 1   sinφ·tanθ    cosφ·tanθ  ⎤ ⎡ p ⎤
-⎢ θ̇ ⎥ = ⎢ 0     cosφ         -sinφ     ⎥ ⎢ q ⎥
-⎣ ψ̇ ⎦   ⎣ 0   sinφ/cosθ    cosφ/cosθ  ⎦ ⎣ r ⎦
+[ phi_dot ]   [ 1   sinφ·tanθ    cosφ·tanθ  ] [ p ]
+[ tht_dot ] = [ 0     cosφ         -sinφ     ] [ q ]
+[ psi_dot ]   [ 0   sinφ/cosθ    cosφ/cosθ  ] [ r ]
 ```
 
 - Converts body-frame angular velocity `[p,q,r]` into Euler angle rates `[φ̇, θ̇, ψ̇]`.
@@ -78,7 +78,7 @@ r̈   =   ⎢ 0  ⎥  +  R̄ ⎢   0      ⎥
 **Angular velocity dynamics:**
 
 ```
-ω̇_BW = I⁻¹ [ -ω_BW × (I·ω_BW) + [M₁, M₂, M₃]ᵀ ]
+omega_dot_BW = I^(-1) [ -omega_BW × (I·omega_BW) + [M1, M2, M3]^T ]
 ```
 
 - The 3D version of planar `θ̈ = u₂/I`. Here `I` is a matrix, so we use its inverse.
@@ -87,9 +87,9 @@ r̈   =   ⎢ 0  ⎥  +  R̄ ⎢   0      ⎥
 **Inertia matrix:**
 
 ```
-    ⎡ I_xx   0     0   ⎤
-I = ⎢  0    I_yy   0   ⎥
-    ⎣  0     0    I_zz ⎦
+    [ I_xx   0     0   ]
+I = [  0    I_yy   0   ]
+    [  0     0    I_zz ]
 ```
 
 - Off-diagonal terms (products of inertia) are zero **not just because the drone is symmetric, but because the body axes `b̄x, b̄y, b̄z` are chosen to align with the principal axes.** Axis choice — not just the object — determines whether off-diagonals vanish. Every rigid body has principal axes that diagonalize `I`; the designer deliberately defines the body frame along them.
@@ -108,7 +108,14 @@ The dynamics are **nonlinear** (sin, cos, cross products), which makes control h
 
 ### Nominal (reference) point — hover
 
-$$\bar{x}_0 = \begin{bmatrix} x_0 \\ y_0 \\ 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}, \quad \bar{u}_0 = \begin{bmatrix} mg \\ 0 \end{bmatrix}$$
+```
+      [ x_0 ]
+      [ y_0 ]
+      [  0  ]
+x_0 = [  0  ]          u_0 = [ mg ]
+      [  0  ]                [  0 ]
+      [  0  ]
+```
 
 - Same as the hover condition: `u₁ = mg`, `u₂ = 0`, all velocities and angles zero.
 - Key property: `f(x̄₀, ū₀) = 0̄` — start at hover, apply hover input, nothing changes.
@@ -135,7 +142,14 @@ $$A_{ij} = \frac{\partial(\text{i-th equation})}{\partial(\text{j-th state})}, \
 
 ### Planar A and B (after substituting hover)
 
-$$A = \begin{bmatrix} 0&0&0&1&0&0 \\ 0&0&0&0&1&0 \\ 0&0&0&0&0&1 \\ 0&0&-g&0&0&0 \\ 0&0&0&0&0&0 \\ 0&0&0&0&0&0 \end{bmatrix}, \quad B = \begin{bmatrix} 0&0 \\ 0&0 \\ 0&0 \\ 0&0 \\ \frac{1}{m}&0 \\ 0&\frac{1}{I} \end{bmatrix}$$
+```
+    [ 0  0   0   1  0  0 ]        [  0    0  ]
+    [ 0  0   0   0  1  0 ]        [  0    0  ]
+A = [ 0  0   0   0  0  1 ]    B = [  0    0  ]
+    [ 0  0  -g   0  0  0 ]        [  0    0  ]
+    [ 0  0   0   0  0  0 ]        [ 1/m   0  ]
+    [ 0  0   0   0  0  0 ]        [  0   1/I ]
+```
 
 **Physical meaning of the nonzero entries:**
 
