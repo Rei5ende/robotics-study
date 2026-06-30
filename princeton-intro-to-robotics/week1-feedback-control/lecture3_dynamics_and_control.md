@@ -142,7 +142,7 @@ $$A = \begin{bmatrix} 0&0&0&1&0&0 \\ 0&0&0&0&1&0 \\ 0&0&0&0&0&1 \\ 0&0&-g&0&0&0 
 | Entry | Location | Meaning |
 |-------|----------|---------|
 | `1` (×3) | top block of A | position's rate of change = velocity (`ẋ = vₓ`, kinematic identity) |
-| `-g` | A, row 4 col 3 | **a small tilt θ produces horizontal acceleration** — derived from `∂(-u₁/m·sinθ)/∂θ = -u₁/m·cosθ`, which at hover (`u₁=mg, θ=0`) gives `-g`. This is *why a drone must tilt to move sideways* — the bridge between tilt and translation. |
+| `-g` | A, row 4 col 3 | **a small tilt θ produces horizontal acceleration**.<br>Derived from `∂(-u₁/m·sinθ)/∂θ = -u₁/m·cosθ`, which at hover (`u₁=mg, θ=0`) gives `-g`.<br>This is *why a drone must tilt to move sideways* — the bridge between tilt and translation. |
 | `1/m` | B, row 5 col 1 | thrust → vertical accel (`ÿ = u₁/m`); lighter drone = more responsive |
 | `1/I` | B, row 6 col 2 | torque → angular accel (`θ̈ = u₂/I`); smaller inertia = more responsive |
 
