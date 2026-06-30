@@ -46,10 +46,15 @@ $$M_i^{aero} = k_m \omega_i^2 \quad \text{(aerodynamic drag moment)}$$
 
 ### Full 3D Dynamics (sketch)
 
-All dynamics take the form `x̄̇ = f(x̄, ū)`. Sketch:
+All dynamics take the form $\dot{\bar{x}} = f(\bar{x}, \bar{u})$. Sketch:
 
 **Position / velocity:**
-$$\ddot{\bar{r}} = \begin{bmatrix} 0 \\ 0 \\ -g \end{bmatrix} + \bar{R}\begin{bmatrix} 0 \\ 0 \\ F_{tot}/m \end{bmatrix}$$
+$$
+\ddot{\bar{r}} =
+\begin{bmatrix} 0 \\ 0 \\ -g \end{bmatrix}
++ \bar{R}
+\begin{bmatrix} 0 \\ 0 \\ F_{tot}/m \end{bmatrix}
+$$
 
 - `R̄` = **rotation matrix** that takes a vector from body frame → inertial frame.
 - Thrust always points along the drone's own up-axis (`b̄z`), so in the body frame it's `[0, 0, Ftot/m]`. `R̄` rotates it into world coordinates based on how the drone is tilted.
@@ -57,25 +62,48 @@ $$\ddot{\bar{r}} = \begin{bmatrix} 0 \\ 0 \\ -g \end{bmatrix} + \bar{R}\begin{bm
 - **We don't compute `R̄` ourselves** — it's determined automatically once the Euler angles `(φ, θ, ψ)` are known.
 
 **Euler angle rates (kinematic relation):**
-$$\begin{bmatrix} \dot{\phi} \\ \dot{\theta} \\ \dot{\psi} \end{bmatrix} = \begin{bmatrix} 1 & \sin\phi\tan\theta & \cos\phi\tan\theta \\ \cdots & \cdots & \cdots \\ \cdots & \cdots & \cdots \end{bmatrix} \begin{bmatrix} p \\ q \\ r \end{bmatrix}$$
+$$
+\begin{bmatrix} \dot{\phi} \\ \dot{\theta} \\ \dot{\psi} \end{bmatrix}
+=
+\begin{bmatrix}
+1 & \sin\phi\tan\theta & \cos\phi\tan\theta \\
+0 & \cos\phi & -\sin\phi \\
+0 & \sin\phi\sec\theta & \cos\phi\sec\theta
+\end{bmatrix}
+\begin{bmatrix} p \\ q \\ r \end{bmatrix}
+$$
 
 - Converts body-frame angular velocity `[p,q,r]` into Euler angle rates `[φ̇, θ̇, ψ̇]`.
+- *(The lecture notes only wrote out the first row and left the rest as "...". The full matrix above is the standard space 1-2-3 form, shown here for completeness — no need to memorize it.)*
 - They differ because Euler angles are applied *sequentially* (Roll→Pitch→Yaw), so each rotation's axis is offset by the previous ones — hence the sin/cos/tan correction terms.
 - **This matrix is NOT `R̄`.** `R̄` rotates a *vector*; this matrix converts *angular velocity units*. Different mathematical objects.
 - This conversion is **convention-dependent** — using a different rotation order changes the correction terms.
 
 **Angular velocity dynamics:**
-$$\dot{\bar{\omega}}_{BW} = \mathbf{I}^{-1}\left[-\bar{\omega}_{BW} \times (\mathbf{I}\bar{\omega}_{BW}) + \begin{bmatrix} M_1 \\ M_2 \\ M_3 \end{bmatrix}\right]$$
+$$
+\dot{\bar{\omega}}_{BW} = \mathbf{I}^{-1}
+\left[
+-\bar{\omega}_{BW} \times (\mathbf{I}\bar{\omega}_{BW})
++ \begin{bmatrix} M_1 \\ M_2 \\ M_3 \end{bmatrix}
+\right]
+$$
 
 - The 3D version of planar `θ̈ = u₂/I`. Here `I` is a matrix, so we use its inverse.
 - The `-ω̄ × (Iω̄)` term is the **gyroscopic effect** — rotation about one axis influences the others (like a figure skater spinning faster when pulling arms in). Doesn't exist in planar because there's only one rotation axis.
 
 **Inertia matrix:**
-$$\mathbf{I} = \begin{bmatrix} I_{xx} & 0 & 0 \\ 0 & I_{yy} & 0 \\ 0 & 0 & I_{zz} \end{bmatrix}$$
+$$
+\mathbf{I} =
+\begin{bmatrix}
+I_{xx} & 0 & 0 \\
+0 & I_{yy} & 0 \\
+0 & 0 & I_{zz}
+\end{bmatrix}
+$$
 
 - Off-diagonal terms (products of inertia) are zero **not just because the drone is symmetric, but because the body axes `b̄x, b̄y, b̄z` are chosen to align with the principal axes.** Axis choice — not just the object — determines whether off-diagonals vanish. Every rigid body has principal axes that diagonalize `I`; the designer deliberately defines the body frame along them.
 
-> *Note: The course doesn't expect us to derive these. The point is to recognize they all fit `x̄̇ = f(x̄, ū)`.*
+> *Note: The course doesn't expect us to derive these. The point is to recognize they all fit $\dot{\bar{x}} = f(\bar{x}, \bar{u})$.*
 
 ---
 
@@ -89,7 +117,13 @@ The dynamics are **nonlinear** (sin, cos, cross products), which makes control h
 
 ### Nominal (reference) point — hover
 
-$$\bar{x}_0 = \begin{bmatrix} x_0 \\ y_0 \\ 0 \\ 0 \\ 0 \\ 0 \end{bmatrix}, \quad \bar{u}_0 = \begin{bmatrix} mg \\ 0 \end{bmatrix}$$
+$$
+\bar{x}_0 =
+\begin{bmatrix} x_0 \\ y_0 \\ 0 \\ 0 \\ 0 \\ 0 \end{bmatrix},
+\quad
+\bar{u}_0 =
+\begin{bmatrix} mg \\ 0 \end{bmatrix}
+$$
 
 - Same as the hover condition: `u₁ = mg`, `u₂ = 0`, all velocities and angles zero.
 - Key property: `f(x̄₀, ū₀) = 0̄` — start at hover, apply hover input, nothing changes.
@@ -116,7 +150,27 @@ $$A_{ij} = \frac{\partial(\text{i-th equation})}{\partial(\text{j-th state})}, \
 
 ### Planar A and B (after substituting hover)
 
-$$A = \begin{bmatrix} 0&0&0&1&0&0 \\ 0&0&0&0&1&0 \\ 0&0&0&0&0&1 \\ 0&0&-g&0&0&0 \\ 0&0&0&0&0&0 \\ 0&0&0&0&0&0 \end{bmatrix}, \quad B = \begin{bmatrix} 0&0 \\ 0&0 \\ 0&0 \\ 0&0 \\ \frac{1}{m}&0 \\ 0&\frac{1}{I} \end{bmatrix}$$
+$$
+A =
+\begin{bmatrix}
+0&0&0&1&0&0 \\
+0&0&0&0&1&0 \\
+0&0&0&0&0&1 \\
+0&0&-g&0&0&0 \\
+0&0&0&0&0&0 \\
+0&0&0&0&0&0
+\end{bmatrix},
+\quad
+B =
+\begin{bmatrix}
+0&0 \\
+0&0 \\
+0&0 \\
+0&0 \\
+\frac{1}{m}&0 \\
+0&\frac{1}{I}
+\end{bmatrix}
+$$
 
 **Physical meaning of the nonzero entries:**
 
