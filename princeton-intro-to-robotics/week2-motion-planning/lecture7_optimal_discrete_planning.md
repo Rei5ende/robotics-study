@@ -79,11 +79,11 @@ $$C(A) = 0, \qquad C(x) = \infty \quad \text{for all other } x$$
 
 **Relaxation (the Resolve duplicate step):**
 
-Each time the current vertex $x$ considers neighbor $x'$ via edge $e$:
+Each time the current vertex $x$ considers neighbor $x'$ via edge $e$, compute a candidate cost:
 
-$$\text{tentative\_C} = C(x) + l(e)$$
+`tentative_C` $= C(x) + l(e)$
 
-If $\text{tentative\_C} < C(x')$, update both the cost and the parent:
+If `tentative_C` $< C(x')$, update both the cost and the parent:
 
 ```
 C(x')      <- tentative_C
@@ -91,7 +91,7 @@ parent(x') <- x
 reorder Q
 ```
 
-If $\text{tentative\_C} \geq C(x')$, do nothing — neither cost nor parent changes.
+If `tentative_C` $\geq C(x')$, do nothing — neither cost nor parent changes.
 
 ### Parent update rule
 
