@@ -31,7 +31,7 @@ $$\boxed{-y^2 < x < y^2}$$
 
 This interval is non-empty only when $-y^2 < y^2$, i.e. when $y^2 > 0$, i.e. **$y \neq 0$**.
 
-At **$y = 0$** the condition collapses to $0 < x < 0$, which no $x$ satisfies. The only free point on the line $y=0$ is the **origin itself** (kept free by the explicit "$(x,y) \neq (0,0)$" exclusion in each obstacle).
+At **$y = 0$** the condition collapses to $0 < x < 0$, which no $x$ satisfies. The only free point on the line $y=0$ is the **origin itself** (kept free by the explicit $(x,y) \neq (0,0)$ exclusion in each obstacle).
 
 **Geometry (bowtie):**
 - Upper region ($y>0$): free space opens up between the two parabolas — contains START.
