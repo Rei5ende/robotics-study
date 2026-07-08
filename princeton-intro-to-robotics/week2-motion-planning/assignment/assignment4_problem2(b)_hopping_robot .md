@@ -78,7 +78,7 @@ $$\boxed{u_1 = \frac{I + m(x_p^2+y_p^2)}{I}\cdot\frac{x_p\dot y_p - y_p\dot x_p}
 
 $\dot\theta$ is available instantaneously — most cleanly straight from the conservation law. Rewriting it with $\dot\alpha = \dot\theta+\dot\psi$ and $r^2 = (l+d)^2 = x_p^2+y_p^2$:
 
-$$I\dot\theta + m r^2 \dot\alpha = 0 \;\;\Rightarrow\;\; \dot\theta = -\frac{m r^2}{I}\,\dot\alpha = -\frac{m}{I}\big(x_p\dot y_p - y_p\dot x_p\big)$$
+$$I\dot\theta + m r^2 \dot\alpha = 0 \\Rightarrow\ \dot\theta = -\frac{m r^2}{I}\,\dot\alpha = -\frac{m}{I}\big(x_p\dot y_p - y_p\dot x_p\big)$$
 
 (the $r^2$ cancels against the denominator of $\dot\alpha$ — a pleasantly clean expression: the body's spin rate is proportional to the foot's areal velocity, a direct restatement of momentum conservation).
 
