@@ -86,7 +86,7 @@ A 12-state, 4-input beast is completely steered by a trajectory of just **4 numb
 
 **Theorem (stated without proof):**
 
-$$\#\text{ of flat outputs} = \#\text{ of control inputs}$$
+$$\"#"\text{ of flat outputs} = \"#"\text{ of control inputs}$$
 
 Sanity checks: quadrotor — 4 rotors = 4 flat outputs ✓. Car (Assignment 4 P2) — 2 inputs ($u_1$ speed, $u_2$ steering) = 2 flat outputs $(x,y)$ ✓. Use this to sanity-check any proposed flat output.
 
