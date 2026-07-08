@@ -32,7 +32,7 @@ $$\dot\theta\[I + m(l+d)^2] = -m(l+d)^2\\dot\psi \\Rightarrow\ \dot\theta = -\fr
 
 So the dynamics are first-order (like the car in 2(a)):
 
-$$\dot\psi = u_1, \qquad \dot l = u_2, \qquad \dot\theta = -\frac{m(l+d)^2}{I+m(l+d)^2}\,u_1$$
+$$\dot\psi = u_1, \qquad \dot l = u_2, \qquad \dot\theta = -\frac{m(l+d)^2}{I+m(l+d)^2}u_1$$
 
 ## Claimed flat output — position of the end of the leg
 
