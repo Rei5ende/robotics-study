@@ -62,7 +62,7 @@ $$u_2 = \dot l = \dot r = \boxed{\dfrac{x_p\dot x_p + y_p\dot y_p}{\sqrt{x_p^2+y
 
 The leg's absolute angle is recovered from the foot position:
 
-$$\alpha = \theta + \psi = \arctan\!\left(\frac{y_p}{x_p}\right) \;\;\Rightarrow\;\; \dot\alpha = \frac{x_p\dot y_p - y_p\dot x_p}{x_p^2 + y_p^2}$$
+$$\alpha = \theta + \psi = \arctan\\left(\frac{y_p}{x_p}\right) \\Rightarrow\\dot\alpha = \frac{x_p\dot y_p - y_p\dot x_p}{x_p^2 + y_p^2}$$
 
 Independently, from the dynamics:
 
