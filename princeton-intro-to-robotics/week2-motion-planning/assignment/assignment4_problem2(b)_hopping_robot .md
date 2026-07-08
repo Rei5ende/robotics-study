@@ -72,7 +72,7 @@ Equating the two expressions and using $(l+d)^2 = x_p^2+y_p^2$ from Step 1:
 
 $$\boxed{u_1 = \frac{I + m(x_p^2+y_p^2)}{I}\cdot\frac{x_p\dot y_p - y_p\dot x_p}{x_p^2+y_p^2}}$$
 
-*(First derivatives. Note the same divide-style move as 2(a): the arctan of a ratio recovers an angle, and its derivative brings in the familiar  $x \dot\y$ − $y \dot\x$ numerator.)*
+*(First derivatives. Note the same divide-style move as 2(a): the arctan of a ratio recovers an angle, and its derivative brings in the familiar $x\dot\y - y\dot\x$ numerator.)*
 
 ### Step 4 — attitude θ: **an integral appears**
 
