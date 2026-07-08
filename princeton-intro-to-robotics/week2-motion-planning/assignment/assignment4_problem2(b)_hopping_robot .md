@@ -48,7 +48,7 @@ The foot position is a polar-coordinate pair in disguise: radius $r = d+l$, angl
 
 ### Step 1 — leg extension l (radius)
 
-$$r = \sqrt{x_p^2 + y_p^2} = d + l \;\;\Rightarrow\;\; \boxed{l = \sqrt{x_p^2+y_p^2} - d}$$
+$$r = \sqrt{x_p^2 + y_p^2} = d + l \\Rightarrow\ \boxed{l = \sqrt{x_p^2+y_p^2} - d}$$
 
 *(Zeroth derivatives of z suffice.)*
 
