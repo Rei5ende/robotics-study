@@ -56,7 +56,7 @@ $$\bar z = \alpha(\bar x, \bar u, \dot{\bar u}, \ddot{\bar u}, \ldots, \bar u^{(
 
 $$\bar x = \beta(\bar z, \dot{\bar z}, \ddot{\bar z}, \ldots, \bar z^{(q)}), \qquad \bar u = \gamma(\bar z, \dot{\bar z}, \ddot{\bar z}, \ldots, \bar z^{(q)})$$
 
-> **💡 Intuition — the pen tip.** Record only the trace of a pen tip ($\bar z(t)$). If the system is flat, that single trace encodes *everything*: how the hand (state  $\bar x$ ) moved and what forces the muscles (inputs $\bar u$) applied — all recoverable by reading the trace's derivatives. β and γ are the **decoders**. No information was lost.
+> **💡 Intuition — the pen tip.** Record only the trace of a pen tip ( $\bar z(t)$ ). If the system is flat, that single trace encodes *everything*: how the hand (state  $\bar x$ ) moved and what forces the muscles (inputs $\bar u$) applied — all recoverable by reading the trace's derivatives. β and γ are the **decoders**. No information was lost.
 
 > **💡 Intuition — physics removes the choices.** Why can a quadrotor's tilt θ be recovered from position alone? Because a quadrotor has exactly **one way** to accelerate sideways: *tilting*. "Accelerating left" physically **forces** "tilted left." Once $\bar z$ is chosen, the remaining states are not free choices — the dynamics determine them, link by link, with no branching. **Flat = no hidden degrees of freedom:** fix $\bar z$, and the dynamics fill in everything else. The usual role of dynamics as a *constraint* ("you can't move sideways") flips into a *decoding rule* ("if z does this, everything else must be that").
 
