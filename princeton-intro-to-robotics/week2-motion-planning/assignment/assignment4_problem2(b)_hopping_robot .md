@@ -28,7 +28,7 @@ $$\bar{x} = (\psi, l, \theta), \qquad \bar{u} = (u_1, u_2) = (\dot\psi, \dot l)$
 
 Solving the conservation law for $\dot\theta$:
 
-$$\dot\theta\[I + m(l+d)^2] = -m(l+d)^2\\dot\psi \\Rightarrow\ \dot\theta = -\frac{m(l+d)^2}{I+m(l+d)^2}\u_1$$
+$$\dot\theta\[I + m(l+d)^2] = -m(l+d)^2\\dot\psi \\Rightarrow\ \dot\theta = -\frac{m(l+d)^2}{I+m(l+d)^2}u_1$$
 
 So the dynamics are first-order (like the car in 2(a)):
 
