@@ -116,7 +116,7 @@ Show all 6 states and 2 inputs are functions of $x, y$ and their derivatives.
 
 $$\tan\theta = \frac{(F_1+F_2)\sin\theta}{(F_1+F_2)\cos\theta} = \frac{-m\ddot x}{m\ddot y + mg} = \frac{-\ddot x}{\ddot y + g}$$
 
-$$\Rightarrow\; \theta = \arctan\!\left(\frac{-\ddot x}{\ddot y + g}\right) \qquad (4)$$
+$$\Rightarrow\ \theta = \arctan\\left(\frac{-\ddot x}{\ddot y + g}\right) \qquad (4)$$
 
 > **💡 Why the division works:** from (1), $(F_1+F_2)\sin\theta = -m\ddot x$; from (2), $(F_1+F_2)\cos\theta = m(\ddot y+g)$. The unknown lump $(F_1+F_2)$ is common to numerator and denominator, so **taking the ratio kills it**, leaving a relation between θ and the second derivatives of z alone. *"When two unknowns are tangled, take a ratio to eliminate one"* — the same move reappears in the car problem (Assignment 4 P2).
 
