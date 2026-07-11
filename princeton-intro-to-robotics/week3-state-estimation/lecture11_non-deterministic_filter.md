@@ -1,117 +1,203 @@
-# Lecture 11 — Non-deterministic Filter
+# Lecture 11: Non-deterministic Filter
 
 **Course:** Introduction to Robotics (Princeton MAE 345/549)
 **Instructor:** Anirudha Majumdar
 
 ---
-## Where this lecture fits
 
-Everything so far — feedback control and motion planning — quietly rested on two assumptions: that the robot can perfectly measure its state $\bar{x}(t)$, and that it already knows a full map of its environment. Neither holds in reality. Lectures 11–16 relax both, building up to estimating state from noisy sensors, constructing a map, and eventually doing both at once (SLAM). This lecture is the conceptual entry point: state estimation stripped down to its bare logic, reasoning with **sets of possible states** rather than probabilities. That set-based framing is what the *non-deterministic* in the name refers to.
+## Overview
 
-## Motivation: intersecting circles
+This lecture opens the **State Estimation, Localization, and Mapping** module. Everything so far — feedback control and motion planning — quietly rested on two assumptions: **(1)** the robot can perfectly measure its own state $\bar x(t)$, and **(2)** it already knows the map (where every obstacle is). Both are false in reality: sensors are noisy and incomplete, and the environment is often unknown. The module relaxes both, and near its end shows the two problems can be solved *simultaneously* (SLAM). Lecture 11 is the first and most conceptual entry point: state estimation that reasons purely about **sets** of possible states, with no probability at all.
 
-Take a 2-DOF point robot with state $\bar{x} = (x, y)$. Suppose one sensor reports distance to the origin. A single measurement $r$ tells the robot only that $\sqrt{x^2 + y^2} = r$ — it lies **somewhere on a circle** of radius $r$. That one number does not pin down the state. Adding a second sensor, distance to another point such as $(1,1)$, pins the robot to the **intersection of two circles**, which is generically two points. A third sensor, distance to a third reference point, cuts that down to a **single point**.
+> **One-line summary:** Carry the robot's belief as a *set* of possible states, and each step **predict** the set forward through the dynamics and **correct** it by intersecting with the states consistent with the current measurement.
 
-This is exactly how GPS trilateration works: no single distance fixes you, but enough independent distances, intersected, do. The whole lecture generalises this one idea — take independent constraints and intersect them to narrow things down.
+> **Where this sits:** first lecture of the estimation module. It builds the exact predict–correct–fuse skeleton that Lec 12 (Bayes filter) reuses — swapping "set" for "probability distribution" and "intersection" for "Bayes' rule." Everything here is the set-valued warm-up for that.
 
-For the three-sensor example, the sensor function is a stacked vector of distances:
+---
+
+## Motivation — Intersecting Distance Sensors
+
+Consider a 2-DOF point robot with state $\bar x = (x, y)$.
+
+- **One distance sensor** (distance to the origin, reading $r$): the robot only learns it lies on a **circle** of radius $r$ — not pinned down.
+- **Two sensors** (add distance to $\bar x_0 = (1,1)$): the state is on the intersection of two circles — generically **two points**, still ambiguous.
+- **Three sensors**: the intersection of three circles is a **single point** — the state is uniquely determined.
+
+> **💡 This is GPS trilateration.** Distances to several satellites, each a sphere, are intersected to localize a receiver. The recurring intuition for the whole module: *one sensor is never enough; information from multiple sources must be intersected to shrink the possibilities.*
+
+For the three-sensor example, the sensor function stacks the three scalar distances into one vector (the third reference point $(x_3, y_3)$ is left unspecified in the notes):
 
 ```
-h(x̄) = [ √(x² + y²)            ]   ← distance to (0,0)
-        [ √((x-1)² + (y-1)²)    ]   ← distance to (1,1)
-        [ √((x-x₃)² + (y-y₃)²)  ]   ← distance to (x₃,y₃)
+h(x̄) = [ √(x² + y²)             ]   ← distance to (0, 0)
+        [ √((x−1)² + (y−1)²)     ]   ← distance to (1, 1)
+        [ √((x−x₃)² + (y−y₃)²)   ]   ← distance to (x₃, y₃)
 ```
 
-Each component defines one circle, and the state consistent with all three measurements at once is the intersection of the three circles.
+so $h : \mathcal{X} \to \mathbb{R}^3$ and a measurement is a triple $\bar z = (r_1, r_2, r_3)$.
 
-## Single-step estimation: sensor function and preimage
+---
 
-Let $\bar{z}$ be a **measurement** (observation). With three distance sensors, $\bar{z} \in \mathbb{R}^3$. We assume a known **sensor function** (or sensor mapping) that says what measurement a given state produces:
+## Single-Step Estimation — Sensor Function & Preimage
 
-$$\bar{z} = h(\bar{x})$$
+Model the sensors with a **sensor function** (sensor mapping), the *forward* direction from state to observation:
 
-This runs *forward*: state in, measurement out. Estimation needs the *reverse* direction — given a measurement, which states are consistent with it? That set is the **preimage**:
+$$\bar z = h(\bar x)$$
 
-$$h^{-1}(\bar{z}) = \{\, \bar{x} \in \mathcal{X} \mid h(\bar{x}) = \bar{z} \,\}$$
+What we actually want is the reverse: given a measurement, which states are consistent with it? That set is the **preimage** of the sensor mapping:
 
-In words: the set of all states that would have produced measurement $\bar{z}$. For the single-circle case, that preimage *is* the circle.
+$$h^{-1}(\bar z) = \{\, \bar x \in \mathcal{X} \mid h(\bar x) = \bar z \,\}$$
 
-> **$h^{-1}$ is not a true inverse.** The map $h$ is generally not invertible — one distance value corresponds to a whole circle of states. So $h^{-1}(\bar{z})$ is not the mathematical inverse function; it is standard notation for "h-reverse," going from an observation back to the set of observation-consistent states. When the preimage happens to be a single point (a singleton), the state is uniquely determined, which corresponds to $h$ being locally invertible.
+read as "the set of all states consistent with having received measurement $\bar z$." In the example, each scalar distance defines one circle, and the preimage of the full measurement is exactly the intersection of those circles.
 
-## Adding dynamics: the idealized multi-step case
+> **⚠️ $h^{-1}$ is NOT a true inverse.** The map $h : \mathcal{X} \to \mathcal{Z}$ is generally not invertible — with one distance sensor, a single reading is consistent with a whole circle of states. So $h^{-1}(\bar z)$ is not the mathematical inverse of $h$; it is standard (if confusing) notation for **"h-reverse"** — going backward from an observation to the *set* of observation-consistent states.
 
-The single-step view ignores that the robot moves. Introduce a discrete-time dynamics model (control inputs ignored for now):
+If the preimage happens to be a **singleton** (exactly one element), the state is uniquely determined; this corresponds to $h$ being *locally* invertible. In general a single snapshot leaves a set — and so far we have ignored the robot's dynamics entirely.
 
-$$\bar{x}_{t+1} = f(\bar{x}_t)$$
+---
 
-Represent the time-0 estimate as a **set** $\hat{X}_0 \subseteq \mathcal{X}$, not a single point — the robot believes it is *somewhere in this region*. Pushing that whole set one step forward through the dynamics gives every state reachable at $t = 1$:
+## Multi-Step — Dynamics, Fusion, and the Filter
 
-$$f(\hat{X}_0) = \{\, \bar{x} \in \mathcal{X} \mid \exists\, \bar{x}_0 \in \hat{X}_0 \text{ s.t. } f(\bar{x}_0) = \bar{x} \,\}$$
+### Dynamics update
 
-The existential quantifier is the whole point: a state $\bar{x}$ belongs to $f(\hat{X}_0)$ if there exists *some* starting state in $\hat{X}_0$ that maps to it. This is the image of the belief set under $f$ — the set pushed forward one step.
+Use a discrete-time dynamics model (control inputs ignored for now):
 
-> **Three different objects share the subscript 0 — keep them apart.** Earlier, $\bar{x}_0 = (1,1)$ was a fixed *sensor reference point* with no time meaning; $\hat{X}_0$ is the *belief set* at time 0; and $\bar{x}_0$ inside the definition above is a *dummy variable* ranging over $\hat{X}_0$. In a general time-$t$ step the dummy variable should carry the source set's index — write $\bar{x}_{t-1} \in \hat{X}_{t-1}$, not $\bar{x}_0$ — so every subscript stays consistent.
+$$\bar x_t = f(\bar x_{t-1})$$
 
-## Fusing prediction and measurement
+The belief is not a point but a **set** $\hat X_{t-1} \subseteq \mathcal{X}$ ("somewhere in here"). Push the whole set one step forward to get the reachable states:
 
-At $t = 1$ the robot also receives a measurement $\bar{z}_1$, giving two independent pieces of information. From the dynamics: the robot is somewhere in $f(\hat{X}_0)$. From the sensor: it is somewhere in $h^{-1}(\bar{z}_1)$. Both must hold simultaneously, and "both" means **intersection**:
+$$f(\hat X_{t-1}) = \{\, \bar x \in \mathcal{X} \mid \exists\, \bar x_{t-1} \in \hat X_{t-1} \;\text{s.t.}\; f(\bar x_{t-1}) = \bar x \,\}$$
 
-$$\hat{X}_1 = f(\hat{X}_0) \cap h^{-1}(\bar{z}_1)$$
+The existential quantifier is the heart of it: a state $\bar x$ is included exactly when *some* starting state in the current belief lands on it. We roll every point of $\hat X_{t-1}$ forward and collect all arrival points — the image of the belief under the dynamics.
 
-This is the same move as intersecting circles in the motivation, except one set is a **dynamics-sourced prediction** and the other a **measurement-sourced constraint**. A useful way to feel the difference: $f(\hat{X}_0)$ is the *eyes-closed guess* — where the robot could be based only on how it moved — and $h^{-1}(\bar{z}_1)$ is the *eyes-open check* — where the sensor says it could be. Neither set is "the answer" on its own; each is a cloud of candidates, and only states lying in both survive.
+### Fusion by intersection
 
-> **Why intersection, not union.** The robot must be at a state that is *both* reachable given where it was *and* consistent with what it now senses. Logical AND corresponds to set intersection. A union would keep states supported by only one source, which is the opposite of narrowing down.
+At time $t$ we also receive $\bar z_t$, whose preimage $h^{-1}(\bar z_t)$ is the states consistent with that reading. The robot must satisfy **both** facts — somewhere the dynamics could have carried it, *and* somewhere the sensor allows. "Both" means **intersection**:
 
-## The non-deterministic filter
+$$\hat X_t = f(\hat X_{t-1}) \cap h^{-1}(\bar z_t)$$
 
-Iterating the fuse step gives the filter. At each time $t$:
+> **⚠️ Why intersection and not union?** The two constraints must hold *simultaneously*. A union would keep states satisfying *either* condition (throwing away information and enlarging the belief); the intersection enforces *both*, which is what shrinks it. This is the same "intersect the circles" move from the motivation.
 
-1. **Dynamics update** — compute $f(\hat{X}_{t-1})$, the states reachable from the previous belief.
-2. **Measurement update** — compute $h^{-1}(\bar{z}_t)$, the states consistent with the current measurement.
-3. **Fuse** — intersect them: $\hat{X}_t = f(\hat{X}_{t-1}) \cap h^{-1}(\bar{z}_t)$.
+### The non-deterministic filter (three steps)
 
-This predict-then-correct rhythm is the skeleton of every filter that follows (Kalman, particle). The dynamics update tends to **grow** the set — uncertainty spreads as the robot moves and one starting state can fan out to many — while the measurement update **shrinks** it, since each observation carves away inconsistent states. Filtering is that repeated expand–contract cycle.
+Iterating the two updates and their fusion defines the filter. At each time step $t$:
 
-## Adding control inputs (Exercise 1)
+```
+1. Dynamics Update    (prediction):   f(X̂ₜ₋₁)  = states reachable from X̂ₜ₋₁
+2. Measurement Update (observation):  h⁻¹(z̄ₜ)  = { x̄ | h(x̄) = z̄ₜ }
+3. Fuse:                               X̂ₜ = f(X̂ₜ₋₁) ∩ h⁻¹(z̄ₜ)
+```
 
-The lecture's first exercise asks how this changes with control inputs. The robot *knows* the input it commanded, so $\bar{u}_t$ is a known quantity, not something to estimate. Only the dynamics update changes. The dynamics becomes $\bar{x}_{t+1} = f(\bar{x}_t, \bar{u}_t)$, and the reachable-set definition simply carries that known input:
+Here the predicted belief is written out explicitly as $f(\hat X_{t-1})$. Lecture 13 (Kalman filtering) later introduces a compact prior/posterior shorthand for the predicted-versus-fused sets; we keep them fully written here to avoid overloading the notation this early.
 
-$$f(\hat{X}_{t-1}, \bar{u}_{t-1}) = \{\, \bar{x} \in \mathcal{X} \mid \exists\, \bar{x}_{t-1} \in \hat{X}_{t-1} \text{ s.t. } f(\bar{x}_{t-1}, \bar{u}_{t-1}) = \bar{x} \,\}$$
+> **💡 Two framings that make it stick.** The dynamics update is a **dynamics-sourced prediction** — where the robot could be, using only where it was and how it moved, sensor unread. The measurement update is a **measurement-sourced constraint** — states compatible with what the sensor now reports. Neither set is "the answer"; the intersection keeps only states surviving both. (Prediction = an eyes-closed guess from dead reckoning; measurement = an eyes-open check; fusion keeps the guesses that still make sense once the eyes open.)
 
-Only one input appears, $\bar{u}_{t-1}$, because a single transition from $\bar{x}_{t-1}$ to $\bar{x}_t$ consumes exactly one command. The measurement update and the intersection are untouched — the sensor function $h$ reads state only, never the input. Intuitively, knowing the input *sharpens* the prediction: rather than allowing every direction the robot might have drifted, it pushes the belief the way the command intended. The full step becomes:
+> **💡 Predict broadens, correct narrows.** The dynamics update typically *grows* the set (uncertainty accumulates as the robot moves); the measurement update *shrinks* it (a reading rules states out). This broaden-then-narrow rhythm is the skeleton of every filter in the module.
 
-$$\hat{X}_t = f(\hat{X}_{t-1}, \bar{u}_{t-1}) \cap h^{-1}(\bar{z}_t)$$
+---
 
-## Realistic case: non-deterministic uncertainty
+## Adding Control Inputs
 
-So far $f$ and $h$ were assumed perfect. Reality adds two kinds of uncertainty. **Dynamics uncertainty**: from a given state and input, the robot does not land in an exactly predictable next state — wheels slip, wind pushes. **Measurement uncertainty**: at a given state, the sensor does not return an exactly predictable reading. If a distance sensor is only accurate to within $\pm\epsilon$, then instead of a clean circle the state lies **somewhere in a ring (annulus)** between radii $r - \epsilon$ and $r + \epsilon$.
+*(Notes Exercise: "think about how this works with control inputs.")*
 
-These bounded-but-unknown error models — sets of possibilities with no probabilities attached — are exactly what *non-deterministic uncertainty* means. Extending the filter to handle them is conceptually easy: the predicted set and the preimage simply get **fatter**, while the three-step predict–correct–fuse structure stays identical.
+With a known input the dynamics become $\bar x_t = f(\bar x_{t-1}, \bar u_{t-1})$, and **only the dynamics update changes**:
 
-### Writing it out formally (Exercise 2)
+$$f(\hat X_{t-1}, \bar u_{t-1}) = \{\, \bar x \in \mathcal{X} \mid \exists\, \bar x_{t-1} \in \hat X_{t-1} \;\text{s.t.}\; f(\bar x_{t-1}, \bar u_{t-1}) = \bar x \,\}$$
 
-Model each error as membership in a bounded set rather than an exact value. Dynamics gains a disturbance $\bar{w}_t$ drawn from a bounded set $\mathcal{W}$, and the measurement gains noise $\bar{v}_t$ from a bounded set $\mathcal{V}$:
+The measurement update and the fusion are untouched, because the sensor function $h$ depends only on the state, not on the input.
 
-$$\bar{x}_{t+1} = f(\bar{x}_t, \bar{u}_t, \bar{w}_t), \quad \bar{w}_t \in \mathcal{W}$$
+> **⚠️ State and input share the same timestep $t-1$.** This is not a coincidence: $f$ is a one-step transition consuming "state at $t-1$ and input at $t-1$" and returning "state at $t$." The input $\bar u_{t-1}$ is precisely the one that *drove* that transition, and it is **known** (the robot commanded it). Writing $\bar u_t$ here would be wrong — it would use a future input to compute the present transition.
 
-$$\bar{z}_t = h(\bar{x}_t) + \bar{v}_t, \quad \bar{v}_t \in \mathcal{V}$$
+> **💡 Knowing the input sharpens the prediction.** Instead of assuming the robot drifted somewhere, the filter pushes the belief in the commanded direction, so $f(\hat X_{t-1}, \bar u_{t-1})$ spreads *less* than the input-free $f(\hat X_{t-1})$.
 
-The **dynamics update** now sweeps over every starting state *and* every allowed disturbance, which is what fattens it:
+---
 
-$$f(\hat{X}_{t-1}, \bar{u}_{t-1}) = \{\, \bar{x} \in \mathcal{X} \mid \exists\, \bar{x}_{t-1} \in \hat{X}_{t-1},\ \exists\, \bar{w} \in \mathcal{W} \text{ s.t. } f(\bar{x}_{t-1}, \bar{u}_{t-1}, \bar{w}) = \bar{x} \,\}$$
+## Realistic Case — Non-deterministic Uncertainty
 
-The **measurement update** keeps every state whose ideal reading could have produced $\bar{z}_t$ under some allowed noise:
+*(Notes Exercise: "write out the non-deterministic filter with non-deterministic uncertainty.")*
 
-$$h^{-1}(\bar{z}_t) = \{\, \bar{x} \in \mathcal{X} \mid \exists\, \bar{v} \in \mathcal{V} \text{ s.t. } h(\bar{x}) + \bar{v} = \bar{z}_t \,\}$$
+So far $f$ and $h$ were exact, each returning a single point. Reality adds two kinds of uncertainty. **Dynamics uncertainty:** from a given state and input, the robot may reach any of several next states. **Measurement uncertainty:** from a given state, the sensor may return any of several readings. Model both by promoting the point-valued functions to **set-valued** ones:
 
-For the distance-to-origin sensor with $\|\bar{v}\| \le \epsilon$, this preimage is precisely the annulus $\{\, (x,y) \mid |\sqrt{x^2 + y^2} - r| \le \epsilon \,\}$. The **fuse** step is unchanged — still an intersection:
+$$F(\bar x_{t-1}, \bar u_{t-1}) \subseteq \mathcal{X}, \qquad H(\bar x) \subseteq \mathcal{Z}$$
 
-$$\hat{X}_t = f(\hat{X}_{t-1}, \bar{u}_{t-1}) \cap h^{-1}(\bar{z}_t)$$
+> **⚠️ The single edit is "= becomes ∈".** Everywhere the deterministic filter wrote an equality between a function output and a value, the uncertain filter writes set membership instead. Nothing else about the structure changes.
 
-> **A known input does not collapse the prediction to a point.** With dynamics uncertainty, even a perfectly known $\bar{u}_{t-1}$ leaves the predicted set spread out, because the disturbance $\bar{w}$ ranges over all of $\mathcal{W}$. Knowing the input reduces the spread; it does not eliminate it.
+**Dynamics update** — union of the reachable sets of every starting point:
 
-## Why it is not used directly, and what comes next
+$$f(\hat X_{t-1}, \bar u_{t-1}) = \{\, \bar x \mid \exists\, \bar x_{t-1} \in \hat X_{t-1} \;\text{s.t.}\; \bar x \in F(\bar x_{t-1}, \bar u_{t-1}) \,\}$$
 
-The lecture is candid that this filter is a conceptual foundation rather than a practical tool. Three reasons: representing and intersecting arbitrary sets $f(\hat{X}_{t-1})$ and $h^{-1}(\bar{z}_t)$ is **computationally hard**; specifying a non-deterministic uncertainty model precisely is **awkward**; and the filter is **very conservative**, tracking every possible state and reasoning about worst cases without any sense of which states are more likely. That last point is the deepest limitation — a worst-case set says *where the robot might be*, never *where it probably is*.
+which is equivalently the union $\bigcup_{\bar x_{t-1} \in \hat X_{t-1}} F(\bar x_{t-1}, \bar u_{t-1})$. Each start now blurs into a blob instead of a point, so the predicted set is fatter than in the ideal case.
 
-The fix is to swap sets for **probability distributions** and intersection for **Bayes' rule**. The same three stages carry over — dynamics update, measurement update, fuse — which is why the next lecture opens with a probability review, with Bayes' rule as the central tool.
+**Measurement update** — keep every state whose *possible-measurement set* contains the observed reading:
+
+$$h^{-1}(\bar z_t) = \{\, \bar x \mid \bar z_t \in H(\bar x) \,\}$$
+
+> **⚠️ Watch the direction of the two memberships.** In the dynamics update the *result* state $\bar x$ is tested for membership in the reachable set $F(\cdot)$. In the measurement update we already hold the observed $\bar z_t$ and test whether it lies in each state's possible-measurement set $H(\bar x)$. Both use $\in$, but what is located inside what is reversed.
+
+**Annulus example.** If the distance sensor is accurate to $\pm\epsilon$, a state $\bar x$ with true distance $\lVert \bar x \rVert$ can produce any reading in $H(\bar x) = [\lVert \bar x \rVert - \epsilon,\; \lVert \bar x \rVert + \epsilon]$. The preimage of an observed $\bar z_t$ is then:
+
+$$h^{-1}(\bar z_t) = \{\, \bar x \mid \lVert \bar x \rVert \in [\bar z_t - \epsilon,\; \bar z_t + \epsilon] \,\}$$
+
+a **ring (annulus)** of thickness $2\epsilon$ rather than a clean circle — exactly the hand-drawn figure in the notes. The fusion step is unchanged: $\hat X_t = f(\hat X_{t-1}, \bar u_{t-1}) \cap h^{-1}(\bar z_t)$. Dropping the control input just removes the $\bar u_{t-1}$ argument, giving $\bar x \in F(\bar x_{t-1})$; nothing else changes.
+
+> **💡 The deterministic filter is the singleton special case.** With $F(\bar x, \bar u) = \{ f(\bar x, \bar u) \}$ and $H(\bar x) = \{ h(\bar x) \}$, each $\in$ collapses back to $=$ and the idealized filter reappears. Adding uncertainty is nothing more than letting those sets hold more than one element.
+
+| | Deterministic (idealized) | Non-deterministic (uncertain) |
+|---|---|---|
+| dynamics | $f(\bar x_{t-1}, \bar u_{t-1}) = \bar x$ | $\bar x \in F(\bar x_{t-1}, \bar u_{t-1})$ |
+| measurement | $h(\bar x) = \bar z_t$ | $\bar z_t \in H(\bar x)$ |
+| fusion | $\cap$ | $\cap$ (unchanged) |
+
+---
+
+## Concluding Notes
+
+The non-deterministic filter is a clean conceptual foundation but is **rarely used directly** in practice, for three reasons:
+
+- **Computationally hard** — representing and intersecting arbitrary sets $f(\hat X_{t-1})$ and $h^{-1}(\bar z_t)$ is difficult in general.
+- **Hard to specify** — pinning down an exact set-model of the uncertainty is awkward.
+- **Very conservative** — by tracking *every* possible state it reasons about worst cases, and can only say "somewhere in this set," never "most likely here."
+
+> **💡 This is what motivates the switch to probability (Lec 12).** The belief becomes a probability *distribution* instead of a set, and fusion becomes **Bayes' rule** instead of set intersection — but the three-step skeleton (dynamics update, measurement update, fuse) carries over unchanged. That is why the lecture closes by asking us to review basic probability, and Bayes' rule in particular (good quick refresher: Ch. 2.2 of *Probabilistic Robotics*).
+
+**Next lecture:** probabilistic methods for state estimation (Bayes filtering).
+
+---
+
+## Concept Flow & What's Next
+
+```
+Control (Lec 2-5)  +  Motion Planning (Lec 6-10)
+   assumed: perfect state knowledge  +  perfect map
+        ↓   (both assumptions now dropped)
+STATE ESTIMATION MODULE (Lec 11-16)
+Lec 11: Non-deterministic filter — belief = a SET; predict (dynamics) then correct (∩ measurement); no probability
+   ↓   (sets are conservative & hard to compute)
+Lec 12: Bayes filter — belief = a probability DISTRIBUTION; fuse by Bayes' rule (same 3-step skeleton)
+Lec 13: Kalman / particle filters — practical implementations
+Lec 14-16: Localization → Mapping → SLAM (estimate state AND map at once)
+```
+
+> **💡 Presentation one-liner:** *"Planning and control assumed the robot knew where it was; the estimation module earns that knowledge — starting with the set-based non-deterministic filter, whose predict–correct–fuse skeleton every later filter inherits."*
+
+---
+
+## Quick Reference
+
+| Term | Meaning |
+|------|---------|
+| sensor function $h$ | forward map state → measurement, $\bar z = h(\bar x)$ |
+| preimage $h^{-1}(\bar z)$ | set of states consistent with measurement $\bar z$; **not** a true inverse ("h-reverse") |
+| singleton preimage | measurement pins the state uniquely; $h$ locally invertible |
+| belief set $\hat X_t$ | the estimate — a *set* of possible states, not a point |
+| dynamics update $f(\hat X_{t-1})$ | image of the belief under the dynamics; "where I could have moved to" (prediction) |
+| $\exists$ in the definition | include $\bar x$ if *some* start state in $\hat X_{t-1}$ maps to it |
+| measurement update $h^{-1}(\bar z_t)$ | states consistent with the current reading (correction) |
+| fusion | $\hat X_t = f(\hat X_{t-1}) \cap h^{-1}(\bar z_t)$; intersection because both must hold |
+| predict / correct | dynamics update broadens the set; measurement update narrows it |
+| control-input version | only dynamics update changes: $f(\hat X_{t-1}, \bar u_{t-1})$; input is known, shares timestep $t-1$ |
+| set-valued $F, H$ | uncertain dynamics/measurement return *sets* of possibilities |
+| "= becomes ∈" | the one edit turning the idealized filter into the uncertain filter |
+| annulus | $\pm\epsilon$ distance sensor → belief ring of thickness $2\epsilon$ |
+| deterministic = special case | singleton $F, H$ collapse $\in$ back to $=$ |
+| why not used in practice | computationally hard, hard to specify, overly conservative (worst-case) |
+| leads to | Bayes filter (Lec 12): distribution instead of set, Bayes' rule instead of $\cap$ |
