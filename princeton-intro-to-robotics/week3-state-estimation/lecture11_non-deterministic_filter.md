@@ -1,5 +1,9 @@
 # Lecture 11 — Non-deterministic Filter
 
+**Course:** Introduction to Robotics (Princeton MAE 345/549)
+**Instructor:** Anirudha Majumdar
+
+---
 ## Where this lecture fits
 
 Everything so far — feedback control and motion planning — quietly rested on two assumptions: that the robot can perfectly measure its state $\bar{x}(t)$, and that it already knows a full map of its environment. Neither holds in reality. Lectures 11–16 relax both, building up to estimating state from noisy sensors, constructing a map, and eventually doing both at once (SLAM). This lecture is the conceptual entry point: state estimation stripped down to its bare logic, reasoning with **sets of possible states** rather than probabilities. That set-based framing is what the *non-deterministic* in the name refers to.
