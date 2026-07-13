@@ -113,7 +113,7 @@ $$\boxed{\text{Keep every prior in }(0,1)\text{: never assign exactly 0 or 1.}}$
 | cloudy | 0.3 | 0.7 | 0 |
 | rainy | 0 | 0 | 1 |
 
-Day 1 is known **sunny**, so \text{bel}_1 = (1, 0, 0) over (sunny, cloudy, rainy). The sensor then observes **cloudy, cloudy** on Days 2 and 3. There are no control inputs, so the dynamics update uses $p(x_t \mid x_{t-1})$ (no $u$).
+Day 1 is known **sunny**, so text{bel}_1 = (1, 0, 0) over (sunny, cloudy, rainy). The sensor then observes **cloudy, cloudy** on Days 2 and 3. There are no control inputs, so the dynamics update uses $p(x_t \mid x_{t-1})$ (no $u$).
 
 ### Day 2
 
