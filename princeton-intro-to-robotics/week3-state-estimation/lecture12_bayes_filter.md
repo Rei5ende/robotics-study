@@ -39,7 +39,7 @@ These lead directly to the one result the whole module runs on.
 
 ### Bayes' Rule — the engine
 
-$$p(x \mid y) = \frac{p(y \mid x)\p(x)}{p(y)} = \frac{p(y \mid x)\p(x)}{\sum_{x'} p(y \mid x')\,p(x')}$$
+$$p(x \mid y) = \frac{p(y \mid x)\,p(x)}{p(y)} = \frac{p(y \mid x)\p(x)}{\sum_{x'} p(y \mid x')\,p(x')}$$
 
 It follows in one line from splitting the joint two ways — $p(x \mid y)\,p(y) = p(x, y) = p(y \mid x)\,p(x)$ — and dividing by $p(y)$. The four pieces:
 
