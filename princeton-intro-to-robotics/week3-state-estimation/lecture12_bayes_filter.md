@@ -58,7 +58,7 @@ Each time step runs the same two updates as Lec 11, now on distributions. The st
 - $\overline{\text{bel}}(x_t)$ — belief **after the dynamics prediction but before the measurement** (the *prior* for this step).
 - $\text{bel}(x_t)$ — belief **after folding in the measurement** (the *posterior*).
 
-$$\text{bel}(x_{t-1}) \\xrightarrow{\\text{1. dynamics}\;}\; \overline{\text{bel}}(x_t) \;\xrightarrow{\;\text{2. measurement}\;}\; \text{bel}(x_t)$$
+$$\text{bel}(x_{t-1}) \\xrightarrow{\\text{1. dynamics}\}\ \overline{\text{bel}}(x_t) \\xrightarrow{\\text{2. measurement}\}\ \text{bel}(x_t)$$
 
 **1. Dynamics update (prediction)** — push the previous belief through the transition model. This is the theorem of total probability with $x_{t-1}$ marginalized out:
 
