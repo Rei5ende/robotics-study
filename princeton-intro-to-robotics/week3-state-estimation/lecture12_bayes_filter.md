@@ -62,11 +62,11 @@ $$\text{bel}(x_{t-1}) \\xrightarrow{\\text{1. dynamics}\}\ \overline{\text{bel}}
 
 **1. Dynamics update (prediction)** — push the previous belief through the transition model. This is the theorem of total probability with $x_{t-1}$ marginalized out:
 
-$$\overline{\text{bel}}(x_t) = \sum_{x_{t-1}} p(x_t \mid x_{t-1}, u_{t-1})\,\text{bel}(x_{t-1})$$
+$$\overline{\text{bel}}(x_t) = \sum_{x_{t-1}} p(x_t \mid x_{t-1}, u_{t-1})\text{bel}(x_{t-1})$$
 
 **2. Measurement update (correction)** — apply Bayes' rule with $\overline{\text{bel}}(x_t)$ as the prior:
 
-$$\text{bel}(x_t) = \eta\, p(z_t \mid x_t)\,\overline{\text{bel}}(x_t), \qquad \eta = \frac{1}{p(z_t)}$$
+$$\text{bel}(x_t) = \eta p(z_t \mid x_t)\overline{\text{bel}}(x_t) qquad \eta = \frac{1}{p(z_t)}$$
 
 > **⚠️ The bar is not decoration — it separates two beliefs in the same step.** $\overline{\text{bel}}(x_t)$ (prediction) is what goes into the *prior slot* of the measurement update; $\text{bel}(x_t)$ (correction) is what comes out. Using one symbol for both is what makes the raw lecture notes read as if the belief "changes twice." The dynamics update always outputs $\overline{\text{bel}}$; the measurement update always outputs $\text{bel}$ — regardless of which state you are looking at.
 
