@@ -147,7 +147,7 @@ $$\text{bel}_3(\text{cloudy}) = \frac{0.7\cdot\tfrac{30}{115}}{\tfrac{261}{575}}
 
 $$\boxed{p(\text{Day 3 is cloudy}\mid \text{observations}) = \tfrac{35}{87} \approx 0.40}$$
 
-> **⚠️ The "$1 - \text{other}$" shortcut fails with 3 states.** In the Day-3 normalizer, $\overline{\text{bel}}_3(\text{sunny})$ is $\tfrac{78}{115}$, **not** $1 - \tfrac{6}{23} = \tfrac{85}{115}$. The difference $\tfrac{7}{115}$ is exactly the rainy mass. Folding rainy into sunny inflates the normalizer and drags the answer down (to $\approx 0.38$). With three or more states, $1 - \text{bel(cloudy)} = \text{bel(sunny)} + \text{bel(rainy)}$ — you must compute all components and sum them, never subtract a single one.
+> **⚠️ The $1 - \text{other}$ shortcut fails with 3 states.** In the Day-3 normalizer, $\overline{\text{bel}}_3(\text{sunny})$ is $\tfrac{78}{115}$, **not** $1 - \tfrac{6}{23} = \tfrac{85}{115}$. The difference $\tfrac{7}{115}$ is exactly the rainy mass. Folding rainy into sunny inflates the normalizer and drags the answer down (to $\approx 0.38$). With three or more states, $1 - \text{bel(cloudy)} = \text{bel(sunny)} + \text{bel(rainy)}$ — you must compute all components and sum them, never subtract a single one.
 
 ---
 
