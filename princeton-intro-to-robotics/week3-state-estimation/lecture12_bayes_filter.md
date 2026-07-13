@@ -39,11 +39,11 @@ These lead directly to the one result the whole module runs on.
 
 ### Bayes' Rule — the engine
 
-$$p(x \mid y) = \frac{p(y \mid x)\,p(x)}{p(y)} = \frac{p(y \mid x)\p(x)}{\sum_{x'} p(y \mid x')\,p(x')}$$
+$$p(x \mid y) = \frac{p(y \mid x)\*p(x)}{p(y)} = \frac{p(y \mid x)\p(x)}{\sum_{x'} p(y \mid x')\*p(x')}$$
 
 It follows in one line from splitting the joint two ways — $p(x \mid y)\,p(y) = p(x, y) = p(y \mid x)\,p(x)$ — and dividing by $p(y)$. The four pieces:
 
-$$\underbrace{p(x \mid y)}_{\text{posterior}} \\propto\ \underbrace{p(y \mid x)}_{\text{likelihood}}\\underbrace{p(x)}_{\text{prior}}, \qquad \underbrace{p(y)}_{\text{normalizer}} = \sum_{x'} p(y \mid x')\p(x')$$
+$$\underbrace{p(x \mid y)}_{\text{posterior}} \\propto\ \underbrace{p(y \mid x)}_{\text{likelihood}}\\underbrace{p(x)}_{\text{prior}}, \qquad \underbrace{p(y)}_{\text{normalizer}} = \sum_{x'} p(y \mid x')\*p(x')$$
 
 The reading is **posterior ∝ likelihood × prior**: start from the prior belief, multiply by how well each state explains the evidence, and renormalize. The denominator $p(y)$ does not depend on $x$ — it is just the number that makes the posterior sum to 1.
 
