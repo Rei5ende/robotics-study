@@ -121,7 +121,7 @@ Day 1 is known **sunny**, so bel_1 = (1, 0, 0) over (sunny, cloudy, rainy). The 
 
 $$\overline{\text{bel}}_2 = (0.8,\ 0.2,\ 0)$$
 
-**Correct** (reading = cloudy → likelihoods p(\text{cloudy}\mid\cdot) = (0.4,\ 0.7,\ 0)):
+**Correct** (reading = cloudy → likelihoods $p(\text{cloudy}\mid\cdot) = (0.4,\ 0.7,\ 0)$ ):
 
 $$\text{numerators} = (0.4 \times 0.8,\ 0.7 \times 0.2,\ 0) = (0.32,\ 0.14,\ 0), \qquad p(Z_2 = \text{cloudy}) = 0.46$$
 
