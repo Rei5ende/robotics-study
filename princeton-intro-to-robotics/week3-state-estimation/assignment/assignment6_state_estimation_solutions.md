@@ -9,7 +9,7 @@
 
 Three theory problems, each exercising the predict–correct filter on a discrete state space. Problem 1 is the **set-based** non-deterministic filter; Problems 2 and 3 are the **probabilistic** Bayes filter. Two of the three are really lessons about *failure modes and subtleties* rather than mechanical computation.
 
-> **One-line each:** **P1** — a useless sensor still localizes the robot, because information comes from the *dynamics* (a wall), not the sensor. **P2** — a prior of exactly 0 or 1 permanently breaks the Bayes filter. **P3** — a 3-state HMM where the "$1 - \text{other}$" shortcut fails and full normalization is required.
+> **One-line each:** **P1** — a useless sensor still localizes the robot, because information comes from the *dynamics* (a wall), not the sensor. **P2** — a prior of exactly 0 or 1 permanently breaks the Bayes filter. **P3** — a 3-state HMM where the $1 - \text{other}$ shortcut fails and full normalization is required.
 
 ---
 
