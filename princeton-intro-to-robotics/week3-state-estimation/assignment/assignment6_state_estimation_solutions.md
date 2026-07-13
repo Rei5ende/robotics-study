@@ -139,7 +139,7 @@ $$\overline{\text{bel}}_3(\text{rainy}) = 0\cdot\tfrac{16}{23} + 0.2\cdot\tfrac{
 
 Check: $\tfrac{78 + 30 + 7}{115} = 1$. **Rainy revives to $\tfrac{7}{115}$** even though it was 0 on Day 2, because cloudy can transition to rainy.
 
-**Correct** (reading = cloudy again → likelihoods $(0.4, 0.7, 0)$):
+**Correct** (reading = cloudy again → likelihoods $(0.4, 0.7, 0)$ ):
 
 $$p(Z_3 = \text{cloudy}) = 0.4\cdot\tfrac{78}{115} + 0.7\cdot\tfrac{30}{115} + 0\cdot\tfrac{7}{115} = \tfrac{261}{575}$$
 
