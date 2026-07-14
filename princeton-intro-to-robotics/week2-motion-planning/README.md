@@ -37,7 +37,7 @@ Lec 10: RRT + dynamics (3 ideas) + TVLQR — plan for general systems, then corr
 
 | Assignment | Problem | Note |
 |------------|---------|------|
-| A3 | Problem 1 — BFS/DFS hand-trace (4- vs 8-connectivity) | [`Assignment3_problem1.md`](./Assignment3_problem1.md) |
+| A3 | Problem 1 — BFS/DFS hand-trace (4- vs 8-connectivity) | [`Assignment3_problem1.md`](.assignment3/assignment3_problem1.md) |
 | A4 | Problem 1 — RRT probabilistic completeness (bowtie) | [`assignment4_problem1.md`](./assignment4_problem1.md) |
 | A4 | Problem 2(a) — Car differential flatness | [`Assignment4_problem2(a).md`](./Assignment4_problem2(a).md) |
 | A4 | Problem 2(b) — Fully actuated mechanical system | [`Assignment4_problem2(b)_fully_actuated.md`](./Assignment4_problem2(b)_fully_actuated.md) |
