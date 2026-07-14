@@ -27,29 +27,38 @@ Lec 10: RRT + dynamics (3 ideas) + TVLQR — plan for general systems, then corr
 
 | Lecture | Topic | Note |
 |---------|-------|------|
-| Lec 6 | Discrete planning: BFS / DFS | *(summary below — no standalone file)* |
-| Lec 7 | Optimal discrete planning: Dijkstra / A\* | *(summary below — no standalone file)* |
-| Lec 8 | Randomized planning: Configuration Space & RRT | [`lecture8_rrt.md`](./lecture8_rrt.md) |
+| Lec 6 | Discrete planning: BFS / DFS | [`lecture6_motion_planning.md`](./lecture6_motion_planning.md) |
+| Lec 7 | Optimal discrete planning: Dijkstra / A\* | [`lecture7_optimal_discrete_planning.md`](./lecture7_optimal_discrete_planning.md) |
+| Lec 8 | Randomized planning: Configuration Space & RRT | [`lecture8_rapidly-exploring_randomized_tree.md`](./lecture8_rapidly-exploring_randomized_tree.md) |
 | Lec 9 | Differential Flatness | [`lecture9_differential_flatness.md`](./lecture9_differential_flatness.md) |
-| Lec 10 | Planning with dynamics constraints + TVLQR | [`lecture10_planning_with_dynamics.md`](./lecture10_planning_with_dynamics.md) |
+| Lec 10 | Planning with dynamics constraints + TVLQR | [`lecture10_planning_with_dynamics_constraints.md`](./lecture10_planning_with_dynamics_constraints.md) |
 
-### Assignment solutions
+### Assignments
 
-| Assignment | Problem | Note |
-|------------|---------|------|
-| A3 | Problem 1 — BFS/DFS hand-trace (4- vs 8-connectivity) | [`Assignment3_problem1.md`](.assignment3/assignment3_problem1.md) |
-| A4 | Problem 1 — RRT probabilistic completeness (bowtie) | [`assignment4_problem1.md`](./assignment4_problem1.md) |
-| A4 | Problem 2(a) — Car differential flatness | [`Assignment4_problem2(a).md`](./Assignment4_problem2(a).md) |
-| A4 | Problem 2(b) — Fully actuated mechanical system | [`Assignment4_problem2(b)_fully_actuated.md`](./Assignment4_problem2(b)_fully_actuated.md) |
-| A4 | Problem 2(b) — Hopping robot (alternative) | [`Assignment4_problem2(b)_hopping_robot.md`](./Assignment4_problem2(b)_hopping_robot.md) |
+**Assignment 3** — [`assignment/assignment3/`](./assignment/assignment3/)
 
-> Coding parts (Lab 3 = A\*, Lab 4 = RRT) live in [`../labs/`](../labs/).
+| Item | File |
+|------|------|
+| Problem 1 — BFS/DFS hand-trace (4- vs 8-connectivity) | [`problem1.md`](./assignment/assignment3/problem1.md) |
+| Lab 3 — A\* implementation | [`Lab3.ipynb`](./assignment/assignment3/Lab3.ipynb) |
+| Lab 3 — A\* implementation (Korean comments) | [`Lab4_kor.ipynb`](./assignment/assignment3/Lab3_kor.ipynb) |
+
+**Assignment 4** — [`assignment/assignment4/`](./assignment/assignment4/)
+
+| Item | File |
+|------|------|
+| Problem 1 — RRT probabilistic completeness (bowtie) | [`problem1.md`](./assignment/assignment4/problem1.md) |
+| Problem 2(a) — Car differential flatness | [`problem2(a).md`](./assignment/assignment4/problem2(a).md) |
+| Problem 2(b) — Fully actuated mechanical system | [`problem2(b)_fully_actuated.md`](./assignment/assignment4/problem2(b)_fully_actuated.md) |
+| Problem 2(b) — Hopping robot (alternative) | [`problem2(b)_hopping_robot.md`](./assignment/assignment4/problem2(b)_hopping_robot.md) |
+| Lab 4 — RRT implementation | [`Lab4.ipynb`](./assignment/assignment4/Lab4.ipynb) |
+| Lab 4 — RRT implementation (Korean comments) | [`Lab4_kor.ipynb`](./assignment/assignment4/Lab4_kor.ipynb) |
 
 ---
 
 ## Lecture 6 — Discrete Planning (BFS / DFS)
 
-*No standalone note file; key points captured here.*
+Full note: [`lecture6_motion_planning.md`](./lecture6_motion_planning.md)
 
 - **Grid → Graph (3 steps):** one vertex per free cell, connect with 4-/8-connectivity, delete obstacle cells and their edges.
 - **Forward Search:** BFS and DFS differ by a *single line* — how `Q.GetVertex()` pops.
@@ -63,7 +72,7 @@ Lec 10: RRT + dynamics (3 ideas) + TVLQR — plan for general systems, then corr
 
 ## Lecture 7 — Optimal Discrete Planning (Dijkstra / A\*)
 
-*No standalone note file; key points captured here.*
+Full note: [`lecture7_optimal_discrete_planning.md`](./lecture7_optimal_discrete_planning.md)
 
 - **New ingredient — cost + Resolve Duplicate:** when a cheaper path to an already-seen vertex is found, update its cost **and** parent together (they must always move as a pair).
 - **Dijkstra:** `Q.GetVertex()` returns the vertex with minimum **C(x)** (cost-to-come). Each pop finalizes `C(x)=C*(x)` (assuming non-negative edge weights).
@@ -72,13 +81,13 @@ Lec 10: RRT + dynamics (3 ideas) + TVLQR — plan for general systems, then corr
   - **Admissibility:** `H(x) ≤ H*(x)` (never overestimates). Computing `H` while *ignoring obstacles* — e.g. Euclidean distance — is always admissible.
   - A\* biases the search toward the goal, so it typically expands far fewer vertices than Dijkstra.
 
-**Implemented in Lab 3** (`../labs/Lab3.ipynb`): `GetBestVertex` (min-F pop), `computeH` (Euclidean), and the Resolve-Duplicate loop. Result: 10×10 maze, A(0,0)→B(7,6), 26 iterations, path length 18.
+**Implemented in Lab 3** (`assignment/assignment3/Lab3.ipynb`): `GetBestVertex` (min-F pop), `computeH` (Euclidean), and the Resolve-Duplicate loop. Result: 10×10 maze, A(0,0)→B(7,6), 26 iterations, path length 18.
 
 ---
 
 ## Lecture 8 — Configuration Space & RRT
 
-Full note: [`lecture8_rrt.md`](./lecture8_rrt.md)
+Full note: [`lecture8_rapidly-exploring_randomized_tree.md`](./lecture8_rapidly-exploring_randomized_tree.md)
 
 - **Two walls that kill grid search:** (1) curse of dimensionality (k^d vertices), (2) the robot has a *shape* → work in **Configuration Space C** where a whole pose is one point. Note **C ≠ ℝ³** (the θ-axis wraps: C = ℝ² × S¹), and **C_obs** can be very complex.
 - **RRT** dodges both walls: no grid, no explicit C_obs — just sample, find nearest, `Extend` by step-size *d*, collision-check.
@@ -101,7 +110,7 @@ Full note: [`lecture9_differential_flatness.md`](./lecture9_differential_flatnes
 
 ## Lecture 10 — Planning with Dynamics Constraints + TVLQR
 
-Full note: [`lecture10_planning_with_dynamics.md`](./lecture10_planning_with_dynamics.md)
+Full note: [`lecture10_planning_with_dynamics_constraints.md`](./lecture10_planning_with_dynamics_constraints.md)
 
 - **Part 1 — RRT for non-flat systems, three ideas:**
   1. **Random-Propagate** — shoot a random input; no exploration bias → fails in practice.
