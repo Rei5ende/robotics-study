@@ -41,7 +41,7 @@ Lec 10: RRT + dynamics (3 ideas) + TVLQR — plan for general systems, then corr
 |------|------|
 | Problem 1 — BFS/DFS hand-trace (4- vs 8-connectivity) | [`problem1.md`](./assignment/assignment3/problem1.md) |
 | Lab 3 — A\* implementation | [`Lab3.ipynb`](./assignment/assignment3/Lab3.ipynb) |
-| Lab 3 — A\* implementation (Korean comments) | [`Lab4_kor.ipynb`](./assignment/assignment3/Lab3_kor.ipynb) |
+| Lab 3 — A\* implementation (Korean comments) | [`Lab3_kor.ipynb`](./assignment/assignment3/Lab3_kor.ipynb) |
 
 **Assignment 4** — [`assignment/assignment4/`](./assignment/assignment4/)
 
