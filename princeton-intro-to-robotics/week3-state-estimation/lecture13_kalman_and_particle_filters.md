@@ -201,7 +201,7 @@ Particle filters are **one of the most popular state estimation algorithms in pr
 
 ### Seen in Lab 6
 
-Lab 6 makes the bimodality concrete. The state is $\bar{x} = (x, y)$, the dynamics are known exactly, and the only sensor reports the **distance to the origin**, $p(z_t \mid \bar{x}_t) = \mathcal{N}(\|\bar{x}_t\|, \sigma_\text{meas}^2) $. Running the filter, the particles cluster in **two** locations.
+Lab 6 makes the bimodality concrete. The state is $\bar{x} = (x, y)$, the dynamics are known exactly, and the only sensor reports the **distance to the origin**, $ p(z_t \mid \bar{x}_t) = \mathcal{N}(\|\bar{x}_t\|, \sigma_\text{meas}^2) $. Running the filter, the particles cluster in **two** locations.
 
 The cause is visible right in the weight computation: the weight depends on the particle only through $\|\bar{x}^{[m]}\|$, so a particle at $(r, 0)$ and one at $(-r, 0)$ receive **identical weights** — a distance-only sensor has thrown the sign away. The dynamics sharpen this: $y_{t+1} = 0.8y_t$ collapses particles toward the x-axis while $x_{t+1} = 1.1x_t$ expands, leaving exactly the two symmetric candidates. The remedy is to break the symmetry — at least **three** non-collinear range measurements (two circles still intersect in two points), or a single sensor that supplies sign, position, or heading.
 
