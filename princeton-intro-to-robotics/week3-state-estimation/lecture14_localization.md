@@ -11,7 +11,7 @@ Lectures 11–13 built the *tool*: a belief carried as a set, then a distributio
 
 Almost nothing new is introduced. Localization **is** the Bayes filter; the only structural change is that both models now condition on the map. The real work of this lecture is not new theory but **how to actually write down the two models once a map is in play**.
 
-> **One-line summary:** Localization is the Bayes filter with a map added to the conditioning —  $ p(\bar{x}_t \mid \bar{x}_{t-1}, \bar{u}_{t-1}, \bar{m})$ and $p(\bar{z}_t \mid \bar{x}_t, \bar{m}) $ — so once those two models are specified, any technique from Lec 12–13 (discrete Bayes, Kalman, particle) applies unchanged.
+> **One-line summary:** Localization is the Bayes filter with a map added to the conditioning  $p(\bar{x}_t \mid \bar{x}_{t-1}, \bar{u}_{t-1}, \bar{m})$ and $p(\bar{z}_t \mid \bar{x}_t, \bar{m})$  so once those two models are specified, any technique from Lec 12–13 (discrete Bayes, Kalman, particle) applies unchanged.
 
 > **Where this sits:** the first application of the estimation module. It drops the "the robot knows the map" assumption only halfway — the map is *given* here, and Lec 15–16 go on to build the map and finally to do both at once (SLAM).
 
